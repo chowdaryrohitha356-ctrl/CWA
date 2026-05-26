@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>E-Commerce Full Stack Demo</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: Arial, sans-serif;
+    }
+
+    body {
+      background: #f4f4f4;
+      color: #333;
+    }
+
+    header {
+      background: #111827;
+      color: white;
+      padding: 15px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    header h1 {
+      font-size: 24px;
+    }
+
+    nav button {
+      padding: 8px 15px;
+      margin-left: 10px;
+      border: none;
+      background: #2563eb;
+      color: white;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    .container {
+      padding: 20px;
+    }
+
+    .products {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 20px;
+    }
+
+    .card {
+      background: white;
+      padding: 15px;
+      border-radius: 10px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    }
+
+    .card img {
+      width: 100%;
+      height: 180px;
+      object-fit: cover;
+      border-radius: 10px;
+    }
+
+    .card h3 {
+      margin: 10px 0;
+    }
+
+    .card p {
+      margin-bottom: 10px;
+    }
+
+    .card button {
+      width: 100%;
+      padding: 10px;
+      border: none;
+      background: #16a34a;
+      color: white;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    .cart {
+      margin-top: 30px;
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    }
+
+    .cart-item {
+      display: flex;
+      justify-content: space-between;
+      margin: 10px 0;
+      border-bottom: 1px solid #ddd;
+      padding-bottom: 10px;
+    }
+
+    .checkout-btn {
+      margin-top: 15px;
+      padding: 10px 20px;
+      background: #dc2626;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    .login-box, .admin-panel {
+      background: white;
+      padding: 20px;
+      margin-top: 20px;
+      border-radius: 10px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    }
+
+    input, select {
+      width: 100%;
+      padding: 10px;
+      margin: 10px 0;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    footer {
+      margin-top: 30px;
+      background: #111827;
+      color: white;
+      text-align: center;
+      padding: 15px;
+    }
+
+    .api-section {
+      background: white;
+      padding: 20px;
+      margin-top: 20px;
+      border-radius: 10px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    }
+
+    pre {
+      background: #1e293b;
+      color: #fff;
+      padding: 10px;
+      border-radius: 5px;
+      overflow-x: auto;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>ShopEasy</h1>
+  <nav>
+    <span id="userInfo">Guest</span>
+    <button onclick="showLogin()">Login</button>
+  </nav>
+</header>
+
+<div class="container">
+
+  <h2>Product Catalog</h2>
+
+  <div class="products" id="productList"></div>
+
+  <div class="cart">
+    <h2>Shopping Cart</h2>
+    <div id="cartItems"></div>
+    <h3>Total: ₹<span id="total">0</span></h3>
+    <button class="checkout-btn" onclick="checkout()">Checkout</button>
+  </div>
+
+  <div class="login-box hidden" id="loginBox">
+    <h2>User Login</h2>
+
+    <input type="text" id="username" placeholder="Enter username">
+
+    <select id="role">
+      <option value="User">User</option>
+      <option value="Admin">Admin</option>
+    </select>
+
+    <button onclick="login()">Login</button>
+  </div>
+
+  <div class="admin-panel hidden" id="adminPanel">
+    <h2>Admin Product Management</h2>
+
+    <input type="text" id="newProductName" placeholder="Product Name">
+    <input type="number" id="newProductPrice" placeholder="Price">
+    <input type="text" id="newProductImage" placeholder="Image URL">
+
+    <button onclick="addProduct()">Add Product</button>
+  </div>
+
+  <div class="api-section">
+    <h2>Backend API Examples</h2>
+
+    <h3>GET Products API</h3>
+    <pre>
+GET /api/products
+    </pre>
+
+    <h3>POST Order API</h3>
+    <pre>
+POST /api/orders
+{
+  "user": "rohitha",
+  "products": [1,2],
+  "total": 5000
+}
+    </pre>
+
+    <h3>Database Integration</h3>
+    <pre>
+MySQL / PostgreSQL / MongoDB
+
+Products Table:
+- id
+- name
+- price
+- image
+
+Orders Table:
+- order_id
+- user
+- items
+- total
+    </pre>
+  </div>
+
+</div>
+
+<footer>
+  <p>Full Stack E-Commerce Project Demo</p>
+</footer>
+
+<script>
+  const products = [
+    {
+      id: 1,
+      name: "Laptop",
+      price: 55000,
+      image: "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=500"
+    },
+    {
+      id: 2,
+      name: "Headphones",
+      price: 3000,
+      image: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=500"
+    },
+    {
+      id: 3,
+      name: "Smartphone",
+      price: 25000,
+      image: "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=500"
+    },
+    {
+      id: 4,
+      name: "Smart Watch",
+      price: 8000,
+      image: "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=500"
+    }
+  ];
+
+  let cart = [];
+  let currentUser = null;
+
+  function displayProducts() {
+    const productList = document.getElementById("productList");
+    productList.innerHTML = "";
+
+    products.forEach(product => {
+      productList.innerHTML += `
+        <div class="card">
+          <img src="${product.image}" alt="${product.name}">
+          <h3>${product.name}</h3>
+          <p>Price: ₹${product.price}</p>
+          <button onclick="addToCart(${product.id})">Add to Cart</button>
+        </div>
+      `;
+    });
+  }
+
+  function addToCart(id) {
+    const product = products.find(p => p.id === id);
+    cart.push(product);
+    updateCart();
+  }
+
+  function updateCart() {
+    const cartItems = document.getElementById("cartItems");
+    const total = document.getElementById("total");
+
+    cartItems.innerHTML = "";
+
+    let totalPrice = 0;
+
+    cart.forEach((item, index) => {
+      totalPrice += item.price;
+
+      cartItems.innerHTML += `
+        <div class="cart-item">
+          <span>${item.name}</span>
+          <span>₹${item.price}</span>
+        </div>
+      `;
+    });
+
+    total.innerText = totalPrice;
+  }
+
+  function checkout() {
+    if(cart.length === 0) {
+      alert("Cart is empty");
+      return;
+    }
+
+    if(!currentUser) {
+      alert("Please login first");
+      return;
+    }
+
+    alert(`Order placed successfully by ${currentUser.name}`);
+
+    console.log("POST /api/orders", {
+      user: currentUser.name,
+      items: cart,
+      total: cart.reduce((sum, item) => sum + item.price, 0)
+    });
+
+    cart = [];
+    updateCart();
+  }
+
+  function showLogin() {
+    document.getElementById("loginBox").classList.toggle("hidden");
+  }
+
+  function login() {
+    const username = document.getElementById("username").value;
+    const role = document.getElementById("role").value;
+
+    if(username === "") {
+      alert("Enter username");
+      return;
+    }
+
+    currentUser = {
+      name: username,
+      role: role
+    };
+
+    document.getElementById("userInfo").innerText = `${username} (${role})`;
+
+    alert(`Logged in as ${role}`);
+
+    document.getElementById("loginBox").classList.add("hidden");
+
+    if(role === "Admin") {
+      document.getElementById("adminPanel").classList.remove("hidden");
+    }
+  }
+
+  function addProduct() {
+    if(!currentUser || currentUser.role !== "Admin") {
+      alert("Only admin can add products");
+      return;
+    }
+
+    const name = document.getElementById("newProductName").value;
+    const price = document.getElementById("newProductPrice").value;
+    const image = document.getElementById("newProductImage").value;
+
+    if(name === "" || price === "" || image === "") {
+      alert("Fill all fields");
+      return;
+    }
+
+    const newProduct = {
+      id: products.length + 1,
+      name,
+      price: Number(price),
+      image
+    };
+
+    products.push(newProduct);
+
+    displayProducts();
+
+    alert("Product added successfully");
+
+    document.getElementById("newProductName").value = "";
+    document.getElementById("newProductPrice").value = "";
+    document.getElementById("newProductImage").value = "";
+  }
+
+  displayProducts();
+</script>
+
+</body>
+</html>
